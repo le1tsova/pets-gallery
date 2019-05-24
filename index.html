@@ -1,0 +1,41 @@
+<!DOCTYPE >
+<html lang="en">
+  <html>
+    <head>
+      <link href="style.css" rel="stylesheet" />
+      <title>Pets</title>
+
+      <meta charset="utf-8" />
+      <meta name="keywords" content="ключевые слова" />
+      <meta name="descripton" content="Pets Gallery" />
+    </head>
+
+    <body>
+      <main>
+        <section class="central-block">
+          <form
+            class="form-add-cat"
+            action="http://localhost:3000/"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <input type="text" id="name" placeholder="Имя" />
+            <input type="text" id="age" placeholder="Возраст" />
+            <input type="text" id="genger" placeholder="Пол" />
+            <input type="submit" value="Добавить" class="button-submit" />
+          </form>
+
+          <nav class="list-cats"></nav>
+          <section class="info-cats">
+            <figure class="for-foto">
+              <!-- <img class="foto" /> -->
+            </figure>
+            <article class="text-content"></article>
+            <aside class="comments"></aside>
+          </section>
+        </section>
+      </main>
+      <script src="main.js"></script>
+    </body>
+  </html>
+</html>

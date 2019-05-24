@@ -1,0 +1,133 @@
+.button-submit {
+  background-color: lightsteelblue;
+  font-size: 24px;
+  display: block;
+  margin: auto;
+  padding: 5px 25px 5px 25px;
+}
+.central-block {
+  display: flex;
+  font-family: "Arial", sans-serif;
+  font-size: 24px;
+
+  flex-flow: row wrap;
+  align-content: flex-start;
+  color: dimgray;
+  border: 2px solid black;
+}
+
+form {
+  background-color: rgb(245, 204, 150);
+  border: 2px solid black;
+  padding: 30px;
+  margin-top: 0;
+  flex-basis: 100%;
+  flex-grow: 3;
+  margin: 0;
+  display: block;
+  text-align: center;
+  height: 130px;
+}
+.list-cats {
+  border: 2px solid black;
+  flex-basis: 30%;
+  flex-grow: 2;
+  background-color: rgb(245, 225, 200);
+}
+.info-cats {
+  border: 2px solid black;
+  flex-grow: 1;
+  flex-basis: 45%;
+  /* padding: 20px; */
+  display: flex;
+  flex-flow: column wrap;
+  align-content: space-around;
+}
+
+.for-foto {
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 50%;
+  background-image: url("https://99px.ru/sstorage/86/2016/02/mid_10613_4368.jpg");
+  background-position: center center;
+  background-size: 115%;
+}
+img {
+  vertical-align: middle;
+  width: 120%;
+}
+
+.text-content {
+  text-align: center;
+}
+.comments {
+  height: 100%;
+  width: 40%;
+  /* border-left: 2px dashed rgb(197, 208, 223); */
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+li {
+  text-decoration: none;
+  list-style: none;
+}
+.view {
+  background-color: burlywood;
+}
+.unviewed {
+  background-color: rgb(245, 225, 200);
+}
+
+.li-reference {
+  text-decoration: none;
+  color: dimgray;
+  display: block;
+  font-size: 24px;
+  padding: 5px 0 5px 30px;
+}
+.li-reference:hover {
+  background-color: rgb(197, 208, 223);
+}
+input[type="text"] {
+  font-size: 24px;
+  margin-left: 20px;
+  margin-bottom: 20px;
+  padding: 5px;
+}
+h1,
+h2,
+h3 p {
+  color: dimgray;
+}
+
+.comment {
+  margin-left: 15px;
+  background-color: #f8f8f8;
+}
+.comment-autor {
+  padding-top: 5px;
+  padding-left: 5px;
+  font-weight: bold;
+  font-size: 16px;
+  border-bottom: 2px solid #e5e6e6;
+}
+.comment-text {
+  padding-left: 15px;
+  font-size: 14px;
+  padding-bottom: 10px;
+}
+
+body {
+  margin: 0;
+}
+main {
+  height: 100vh;
+}
