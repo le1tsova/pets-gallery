@@ -191,3 +191,47 @@ function displayCatPhoto(url) {
     sectionForFoto.appendChild(photo);
   }
 }
+
+let form = document.querySelector(".form-add-cat");
+
+form.addEventListener("submit", sendNewCat, false);
+
+function sendNewCat() {
+  event.preventDefault();
+  var xhr = new XMLHttpRequest();
+  let body = JSON.stringify({
+    name: document.getElementById("name").value,
+    age: document.getElementById("age").value,
+    gender: document.getElementById("gender").value
+  });
+  // console.log(document.getElementById("age").value);
+  // console.log(body);
+  xhr.open("POST", "http://localhost:3000/cats");
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(body);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) {
+      return;
+    }
+    let newCat = xhr.responseText;
+    newCat = JSON.parse(newCat);
+    replyToUser(newCat, xhr.status);
+    // console.log(newCat);
+  };
+}
+function replyToUser(answer, status) {
+  console.log(answer);
+  console.log(status);
+
+  if (status === 201) {
+    alert(answer.payload);
+  }
+
+  if (status === 400) {
+    alert("Проверьте адекватность введенных данных");
+  }
+
+  if (status == 406) {
+    alert(answer.message);
+  }
+}
