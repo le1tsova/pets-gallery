@@ -12,24 +12,25 @@
 
     <body>
       <main>
-        <section class="central-block">
-          <form
-            class="form-add-cat"
-            action="http://localhost:3000/"
-            method="POST"
-            enctype="multipart/form-data"
-          >
-            <input type="text" id="name" placeholder="Имя" />
-            <input type="text" id="age" placeholder="Возраст" />
-            <input type="text" id="gender" placeholder="Пол" />
-            <input type="submit" value="Добавить" class="button-submit" />
-          </form>
+        <form
+          class="form-add-cat"
+          action="http://localhost:3000/"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <input type="text" id="name" placeholder="Имя" />
+          <input type="text" id="age" placeholder="Возраст" />
+          <select name="select" id="gender">
+            <option value="female">Девочка</option>
+            <option value="male">Мальчик</option>
+          </select>
 
+          <input type="submit" value="Добавить" class="button-submit" />
+        </form>
+        <section class="central-block">
           <nav class="list-cats"></nav>
           <section class="info-cats">
-            <figure class="for-foto">
-              <!-- <img class="foto" /> -->
-            </figure>
+            <figure class="for-foto"></figure>
             <article class="text-content"></article>
             <aside class="comments"></aside>
           </section>

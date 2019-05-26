@@ -1,6 +1,7 @@
 "use strict";
 let list = document.querySelector(".list-cats");
 fetchListCats();
+
 function fetchListCats() {
   let xhr = new XMLHttpRequest();
   xhr.open("GET", "http://localhost:3000/cats");
@@ -27,7 +28,6 @@ function bildListCats(dataList, container) {
     liItem.classList.add("menu-item");
     let liReferense = document.createElement("a");
     liReferense.classList.add("li-reference");
-    liReferense.classList.add("unviewed");
     liReferense.setAttribute("href", "#");
     liReferense.setAttribute("data-id", element.id);
     liReferense.textContent = element.name;
@@ -55,7 +55,6 @@ function fetchInfoOfCat(event) {
     }
     let cats = xhr.responseText;
     cats = JSON.parse(cats);
-    // console.log(cats);
 
     displayInfoOfCat(cats);
     getCommentsOfCat(cats.payload.threadId);
@@ -93,13 +92,10 @@ function getCommentsOfCat(idComment) {
     let threads = xhr.responseText;
     threads = JSON.parse(threads);
     displayComments(threads);
-    // console.log(threads.payload.comments);
   };
 }
 
 function displayComments(dataComments) {
-  // console.log(commentsArr.payload);
-
   let listComments = dataComments.payload;
 
   let placeForComment = document.querySelector(".comments");
@@ -113,6 +109,7 @@ function displayComments(dataComments) {
     makeDummy();
     return;
   }
+
   function makeDummy() {
     let dummy = document.createElement("p");
     dummy.textContent = "Здесь еще нет ни одного комментария";
@@ -141,20 +138,13 @@ function displayComments(dataComments) {
 }
 
 function currentItem(link) {
-  if (link.className === "li-reference view") {
-    currentCat.textContent = " ";
-    link.classList.remove("view");
-    link.classList.add("unviewed");
-  } else {
-    let anyLink = document.querySelectorAll(".li-reference");
-    for (let i = 0; i < anyLink.length; i++) {
-      let a = anyLink[i];
-      a.classList.remove("view");
-      a.classList.add("unviewed");
-    }
-    link.classList.remove("unviewed");
-    link.classList.add("view");
+  let anyLink = document.querySelectorAll(".li-reference");
+  for (let i = 0; i < anyLink.length; i++) {
+    let a = anyLink[i];
+    a.classList.remove("view");
   }
+
+  link.classList.add("view");
 }
 
 function fetchCatPhoto(event) {
@@ -175,14 +165,12 @@ function fetchCatPhoto(event) {
       }
       let cats = xhr.responseText;
       cats = JSON.parse(cats);
-      // console.log(cats.payload);
       displayCatPhoto(cats.payload);
     };
   }
 }
 
 function displayCatPhoto(url) {
-  // console.log(url);
   let sectionForFoto = document.querySelector(".for-foto");
   sectionForFoto.textContent = "";
   if (url) {
@@ -204,8 +192,8 @@ function sendNewCat() {
     age: document.getElementById("age").value,
     gender: document.getElementById("gender").value
   });
-  // console.log(document.getElementById("age").value);
-  // console.log(body);
+  console.log(document.getElementById("gender").value);
+  console.log(body);
   xhr.open("POST", "http://localhost:3000/cats");
   xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
   xhr.send(body);
@@ -216,9 +204,9 @@ function sendNewCat() {
     let newCat = xhr.responseText;
     newCat = JSON.parse(newCat);
     replyToUser(newCat, xhr.status);
-    // console.log(newCat);
   };
 }
+
 function replyToUser(answer, status) {
   console.log(answer);
   console.log(status);
