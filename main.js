@@ -1,9 +1,11 @@
 "use strict";
-let list = document.querySelector(".list-cats");
+
+const list = document.querySelector(".nav");
+
 fetchListCats();
 
 function fetchListCats() {
-  let xhr = new XMLHttpRequest();
+  const xhr = new XMLHttpRequest();
   xhr.open("GET", "http://localhost:3000/cats");
   xhr.send();
 
@@ -12,77 +14,78 @@ function fetchListCats() {
       return;
     }
     let cats = xhr.responseText;
-    cats = JSON.parse(cats);
+    try {
+      cats = JSON.parse(cats);
+    } catch {
+      alert("Извините, в данных ошибка");
+    }
 
-    bildListCats(cats, list);
+    buildListCats(cats, list);
   };
 }
 
-function bildListCats(dataList, container) {
-  var ulCats = document.createElement("ul");
-  ulCats.classList.add("main-menu");
+function buildListCats(dataList, container) {
+  container.textContent = "";
+  const ulCats = document.createElement("ul");
+  ulCats.classList.add("nav__list");
 
-  for (let i = 0; i < dataList.length; i++) {
-    const element = dataList[i];
-    let liItem = document.createElement("li");
-    liItem.classList.add("menu-item");
-    let liReferense = document.createElement("a");
-    liReferense.classList.add("li-reference");
+  dataList.forEach(element => {
+    const liItem = document.createElement("li");
+    liItem.classList.add("nav__item");
+    const liReferense = document.createElement("a");
+    liReferense.classList.add("nav__link");
     liReferense.setAttribute("href", "#");
     liReferense.setAttribute("data-id", element.id);
     liReferense.textContent = element.name;
     liItem.appendChild(liReferense);
     ulCats.appendChild(liItem);
-  }
+  });
 
   container.appendChild(ulCats);
-  let linCats = document.querySelector(".main-menu");
-  linCats.addEventListener("click", fetchInfoOfCat);
-  linCats.addEventListener("click", fetchCatPhoto);
+
+  const linCats = document.querySelector(".nav__list");
+  linCats.addEventListener("click", function() {
+    fetchCatInfo(event.target.getAttribute("data-id"));
+    fetchCatPhoto(event);
+    currentItem(event);
+  });
 }
 
-function fetchInfoOfCat(event) {
-  currentItem(event.target);
-  let xhr = new XMLHttpRequest();
-  xhr.open(
-    "GET",
-    "http://localhost:3000/cats/" + event.target.getAttribute("data-id")
-  );
-  xhr.send();
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-    let cats = xhr.responseText;
-    cats = JSON.parse(cats);
+function currentItem() {
+  const anyLink = document.querySelectorAll(".nav__link");
+  for (let i = 0; i < anyLink.length; i++) {
+    let a = anyLink[i];
+    a.classList.remove("actual");
+  }
 
-    displayInfoOfCat(cats);
-    getCommentsOfCat(cats.payload.threadId);
-  };
+  event.target.classList.add("actual");
 }
-let currentCat = document.querySelector(".text-content");
 
-function displayInfoOfCat(info) {
-  currentCat.textContent = "";
-  let headName = document.createElement("h1");
+const more = document.querySelector(".more");
+
+function displayCatInfo(container, info) {
+  container.textContent = "";
+  const headName = document.createElement("h1");
   headName.textContent = info.payload.name;
-  let pGender = document.createElement("p");
-  pGender.textContent = displayGender(info.payload.gender);
-  let pAge = document.createElement("p");
+  const pGender = document.createElement("p");
+  pGender.textContent = convertGenderToString(info.payload.gender);
+  const pAge = document.createElement("p");
   pAge.textContent = "Лет: " + info.payload.age;
-  currentCat.appendChild(headName, pGender, pAge);
-  currentCat.appendChild(pGender);
-  currentCat.appendChild(pAge);
+  container.appendChild(headName, pGender, pAge);
+  container.appendChild(pGender);
+  container.appendChild(pAge);
 }
 
-function displayGender(gender) {
+function convertGenderToString(gender) {
   if (gender === "male") {
     return "Мальчик ";
   } else return "Девочка ";
 }
 
-function getCommentsOfCat(idComment) {
-  let xhr = new XMLHttpRequest();
+const placeForComment = document.querySelector(".comments");
+
+function fetchCatComments(idComment) {
+  const xhr = new XMLHttpRequest();
   xhr.open("GET", "http://localhost:3000/threads/" + idComment);
   xhr.send();
   xhr.onreadystatechange = function() {
@@ -90,110 +93,125 @@ function getCommentsOfCat(idComment) {
       return;
     }
     let threads = xhr.responseText;
-    threads = JSON.parse(threads);
-    displayComments(threads);
+
+    try {
+      threads = JSON.parse(threads);
+    } catch {
+      alert("Извините, в данных ошибка");
+    }
+
+    displayComments(placeForComment, threads);
   };
 }
 
-function displayComments(dataComments) {
-  let listComments = dataComments.payload;
+function fetchCatInfo(idCat) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", "http://localhost:3000/cats/" + idCat);
+  xhr.send();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) {
+      return;
+    }
+    let cats = xhr.responseText;
 
-  let placeForComment = document.querySelector(".comments");
-  placeForComment.textContent = "";
+    try {
+      cats = JSON.parse(cats);
+    } catch {
+      alert("Извините, в данных ошибка");
+    }
+    displayCatInfo(more, cats);
+    fetchCatComments(cats.payload.threadId);
+  };
+}
 
-  let headerComments = document.createElement("h3");
+function displayComments(container, dataComments) {
+  const listComments = dataComments.payload;
+  container.textContent = "";
+
+  const headerComments = document.createElement("h3");
   headerComments.textContent = "Коммментарии";
-  placeForComment.append(headerComments);
+  container.append(headerComments);
 
-  if (listComments === undefined) {
-    makeDummy();
-    return;
-  }
-
-  function makeDummy() {
-    let dummy = document.createElement("p");
-    dummy.textContent = "Здесь еще нет ни одного комментария";
-    dummy.className = "comment-text";
-    placeForComment.append(dummy);
-  }
-  if (listComments.comments.length === 0) {
-    makeDummy();
+  if (listComments === undefined || listComments.comments.length === 0) {
+    makeDummyForComments(container);
     return;
   }
 
   listComments.comments.forEach(element => {
-    let divCommment = document.createElement("div");
-    divCommment.className = "comment";
-    let autor = document.createElement("h3");
-    autor.className = "comment-autor";
+    const divCommment = document.createElement("div");
+    divCommment.className = "comment__item";
+    const autor = document.createElement("p");
+    autor.className = "comment__author";
     autor.textContent = element.author;
 
-    let textComment = document.createElement("p");
-    textComment.className = "comment-text";
+    const textComment = document.createElement("p");
+    textComment.className = "comment__text";
     textComment.textContent = element.content;
     divCommment.appendChild(autor);
     divCommment.appendChild(textComment);
-    placeForComment.appendChild(divCommment);
+    container.appendChild(divCommment);
   });
 }
 
-function currentItem(link) {
-  let anyLink = document.querySelectorAll(".li-reference");
-  for (let i = 0; i < anyLink.length; i++) {
-    let a = anyLink[i];
-    a.classList.remove("view");
-  }
-
-  link.classList.add("view");
+function makeDummyForComments(container) {
+  const dummy = document.createElement("p");
+  dummy.textContent = "Здесь еще нет ни одного комментария";
+  dummy.className = "comment-text";
+  container.append(dummy);
 }
+
+const sectionForFoto = document.querySelector(".userpic");
 
 function fetchCatPhoto(event) {
-  if (event.target.className === "li-reference" || "li-reference unviewed") {
-    let xhr = new XMLHttpRequest();
-    xhr.open(
-      "GET",
-      "http://localhost:3000/cats" +
-        "/photo/" +
-        event.target.getAttribute("data-id")
-    );
-    xhr.setRequestHeader("x-api-key", "vzuh");
-    xhr.send();
+  const xhr = new XMLHttpRequest();
+  xhr.open(
+    "GET",
+    "http://localhost:3000/cats" +
+      "/photo/" +
+      event.target.getAttribute("data-id")
+  );
+  xhr.setRequestHeader("x-api-key", "vzuh");
+  xhr.send();
 
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState !== 4) {
-        return;
-      }
-      let cats = xhr.responseText;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) {
+      return;
+    }
+
+    let cats = xhr.responseText;
+    try {
       cats = JSON.parse(cats);
-      displayCatPhoto(cats.payload);
-    };
-  }
+    } catch {
+      cats = {};
+    }
+
+    displayCatPhoto(sectionForFoto, cats.payload);
+  };
 }
 
-function displayCatPhoto(url) {
-  let sectionForFoto = document.querySelector(".for-foto");
-  sectionForFoto.textContent = "";
+function displayCatPhoto(container, url) {
+  container.textContent = "";
   if (url) {
     var photo = document.createElement("img");
     photo.setAttribute("src", url);
-    sectionForFoto.appendChild(photo);
+    photo.className = "userpic__image";
+    container.appendChild(photo);
   }
 }
 
-let form = document.querySelector(".form-add-cat");
+const form = document.querySelector(".form");
 
-form.addEventListener("submit", sendNewCat, false);
+form.addEventListener("submit", sendNewCat);
 
 function sendNewCat() {
   event.preventDefault();
-  var xhr = new XMLHttpRequest();
-  let body = JSON.stringify({
+  const xhr = new XMLHttpRequest();
+  const body = JSON.stringify({
     name: document.getElementById("name").value,
     age: document.getElementById("age").value,
     gender: document.getElementById("gender").value
   });
-  console.log(document.getElementById("gender").value);
-  console.log(body);
+
   xhr.open("POST", "http://localhost:3000/cats");
   xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
   xhr.send(body);
@@ -202,15 +220,18 @@ function sendNewCat() {
       return;
     }
     let newCat = xhr.responseText;
-    newCat = JSON.parse(newCat);
+
+    try {
+      newCat = JSON.parse(newCat);
+    } catch {
+      alert("Извините, ошибка в ответе сервера");
+    }
+
     replyToUser(newCat, xhr.status);
   };
 }
 
 function replyToUser(answer, status) {
-  console.log(answer);
-  console.log(status);
-
   if (status === 201) {
     alert(answer.payload);
   }

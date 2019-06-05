@@ -1,42 +1,49 @@
 <!DOCTYPE >
 <html lang="en">
-  <html>
-    <head>
-      <link href="style.css" rel="stylesheet" />
-      <title>Pets</title>
+  <head>
+    <link href="style.css" rel="stylesheet" />
+    <title>Pets</title>
 
-      <meta charset="utf-8" />
-      <meta name="keywords" content="ключевые слова" />
-      <meta name="descripton" content="Pets Gallery" />
-    </head>
+    <meta charset="utf-8" />
+    <meta name="keywords" content="фото, смотреть, полностью, породы, собаки" />
+    <meta
+      name="descripton"
+      content="Фотографии собак с описанием и комментариями"
+    />
+  </head>
 
-    <body>
-      <main>
-        <form
-          class="form-add-cat"
-          action="http://localhost:3000/"
-          method="POST"
-          enctype="multipart/form-data"
-        >
-          <input type="text" id="name" placeholder="Имя" />
-          <input type="text" id="age" placeholder="Возраст" />
-          <select name="select" id="gender">
-            <option value="female">Девочка</option>
-            <option value="male">Мальчик</option>
-          </select>
+  <body>
+    <main class="wrapper">
+      <form class="form">
+        <input
+          type="text"
+          id="name"
+          placeholder="Имя"
+          class="form__name-of-cat"
+        />
+        <input
+          type="text"
+          id="age"
+          placeholder="Возраст"
+          class="form__age-of-cat"
+        />
+        <select name="select" id="gender" class="form__gender-of-cats">
+          <option value="female">Девочка</option>
+          <option value="male">Мальчик</option>
+        </select>
 
-          <input type="submit" value="Добавить" class="button-submit" />
-        </form>
-        <section class="central-block">
-          <nav class="list-cats"></nav>
-          <section class="info-cats">
-            <figure class="for-foto"></figure>
-            <article class="text-content"></article>
-            <aside class="comments"></aside>
-          </section>
+        <!-- <input type="submit" value="Добавить" class="button-submit" /> -->
+        <button class="button-submit">Добавить</button>
+      </form>
+      <section class="central-block">
+        <nav class="nav"></nav>
+        <section class="content">
+          <figure class="userpic"></figure>
+          <aside class="more"></aside>
+          <aside class="comments"></aside>
         </section>
-      </main>
-      <script src="main.js"></script>
-    </body>
-  </html>
+      </section>
+    </main>
+    <script src="main.js"></script>
+  </body>
 </html>
