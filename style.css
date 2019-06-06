@@ -137,3 +137,8 @@ body {
   font-size: 14px;
   padding-bottom: 10px;
 }
+
+.dummy,
+.dummy--error {
+  font-size: 16px;
+}

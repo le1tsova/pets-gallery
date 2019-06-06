@@ -6,9 +6,13 @@ fetchData("http://localhost:3000/cats", function(catsData) {
   buildListCats(catsData, list);
 });
 
-function fetchData(url, callback) {
+function fetchData(url, callback, headerName, headerValue) {
   const xhr = new XMLHttpRequest();
   xhr.open("GET", url);
+
+  if (headerName != undefined && headerValue != undefined) {
+    xhr.setRequestHeader(headerName, headerValue);
+  }
   xhr.send();
 
   xhr.onreadystatechange = function() {
@@ -19,7 +23,7 @@ function fetchData(url, callback) {
     try {
       catsData = JSON.parse(catsData);
     } catch {
-      alert("Извините, в данных ошибка");
+      callback(undefined);
     }
 
     callback(catsData);
@@ -28,6 +32,11 @@ function fetchData(url, callback) {
 
 function buildListCats(dataList, container) {
   container.textContent = "";
+  if (!dataList) {
+    makeDummyErr(container);
+    return;
+  }
+
   const ulCats = document.createElement("ul");
   ulCats.classList.add("nav__list");
 
@@ -60,7 +69,17 @@ function buildListCats(dataList, container) {
       }
     );
 
-    fetchCatPhoto(event);
+    fetchData(
+      "http://localhost:3000/cats" +
+        "/photo/" +
+        event.target.getAttribute("data-id"),
+      function(catsData) {
+        displayCatPhoto(sectionForFoto, catsData);
+      },
+      "x-api-key",
+      "vzuh"
+    );
+
     currentItem(event);
   });
 
@@ -79,6 +98,11 @@ const more = document.querySelector(".more");
 
 function displayCatInfo(container, info) {
   container.textContent = "";
+  if (!info) {
+    makeDummyErr(container);
+    return;
+  }
+
   const headName = document.createElement("h1");
   headName.textContent = info.payload.name;
   const pGender = document.createElement("p");
@@ -99,14 +123,19 @@ function convertGenderToString(gender) {
 const placeForComment = document.querySelector(".comments");
 
 function displayComments(container, dataComments) {
-  const listComments = dataComments.payload;
   container.textContent = "";
-
   const headerComments = document.createElement("h3");
   headerComments.textContent = "Коммментарии";
   container.append(headerComments);
 
-  if (listComments === undefined || listComments.comments.length === 0) {
+  if (!dataComments.payload) {
+    makeDummyErr(container);
+    return;
+  }
+
+  const listComments = dataComments.payload;
+
+  if (listComments.comments.length === 0) {
     makeDummyForComments(container);
     return;
   }
@@ -130,47 +159,28 @@ function displayComments(container, dataComments) {
 function makeDummyForComments(container) {
   const dummy = document.createElement("p");
   dummy.textContent = "Здесь еще нет ни одного комментария";
-  dummy.className = "comment-text";
+  dummy.className = "dummy";
+  container.append(dummy);
+}
+
+function makeDummyErr(container) {
+  const dummy = document.createElement("p");
+  dummy.textContent = "Извините, ошибка в данных";
+  dummy.className = "dummy--error";
   container.append(dummy);
 }
 
 const sectionForFoto = document.querySelector(".userpic");
 
-function fetchCatPhoto(event) {
-  const xhr = new XMLHttpRequest();
-  xhr.open(
-    "GET",
-    "http://localhost:3000/cats" +
-      "/photo/" +
-      event.target.getAttribute("data-id")
-  );
-  xhr.setRequestHeader("x-api-key", "vzuh");
-  xhr.send();
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-
-    let cats = xhr.responseText;
-    try {
-      cats = JSON.parse(cats);
-    } catch {
-      cats = {};
-    }
-
-    displayCatPhoto(sectionForFoto, cats.payload);
-  };
-}
-
 function displayCatPhoto(container, url) {
   container.textContent = "";
-  if (url) {
-    var photo = document.createElement("img");
-    photo.setAttribute("src", url);
-    photo.className = "userpic__image";
-    container.appendChild(photo);
-  }
+
+  if (!url.payload) return;
+
+  var photo = document.createElement("img");
+  photo.setAttribute("src", url.payload);
+  photo.className = "userpic__image";
+  container.appendChild(photo);
 }
 
 const form = document.querySelector(".form");
@@ -198,14 +208,18 @@ function sendNewCat() {
     try {
       newCat = JSON.parse(newCat);
     } catch {
-      alert("Извините, в данных ошибка");
+      replyToUser(undefined);
     }
-
     replyToUser(newCat, xhr.status);
   };
 }
 
 function replyToUser(answer, status) {
+  if (!answer) {
+    alert("Извините, в данных ответа ошибка");
+    return;
+  }
+
   if (status === 201) {
     alert(answer.payload);
   }
