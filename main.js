@@ -2,25 +2,27 @@
 
 const list = document.querySelector(".nav");
 
-fetchListCats();
+fetchData("http://localhost:3000/cats", function(catsData) {
+  buildListCats(catsData, list);
+});
 
-function fetchListCats() {
+function fetchData(url, callback) {
   const xhr = new XMLHttpRequest();
-  xhr.open("GET", "http://localhost:3000/cats");
+  xhr.open("GET", url);
   xhr.send();
 
   xhr.onreadystatechange = function() {
     if (xhr.readyState !== 4) {
       return;
     }
-    let cats = xhr.responseText;
+    let catsData = xhr.responseText;
     try {
-      cats = JSON.parse(cats);
+      catsData = JSON.parse(catsData);
     } catch {
       alert("Извините, в данных ошибка");
     }
 
-    buildListCats(cats, list);
+    callback(catsData);
   };
 }
 
@@ -45,20 +47,32 @@ function buildListCats(dataList, container) {
 
   const linCats = document.querySelector(".nav__list");
   linCats.addEventListener("click", function() {
-    fetchCatInfo(event.target.getAttribute("data-id"));
+    fetchData(
+      "http://localhost:3000/cats/" + event.target.getAttribute("data-id"),
+      function(catsData) {
+        displayCatInfo(more, catsData);
+        fetchData(
+          "http://localhost:3000/threads/" + catsData.payload.threadId,
+          function(catsData) {
+            displayComments(placeForComment, catsData);
+          }
+        );
+      }
+    );
+
     fetchCatPhoto(event);
     currentItem(event);
   });
-}
 
-function currentItem() {
-  const anyLink = document.querySelectorAll(".nav__link");
-  for (let i = 0; i < anyLink.length; i++) {
-    let a = anyLink[i];
-    a.classList.remove("actual");
+  function currentItem() {
+    const anyLink = document.querySelectorAll(".nav__link");
+    for (let i = 0; i < anyLink.length; i++) {
+      let a = anyLink[i];
+      a.classList.remove("actual");
+    }
+
+    event.target.classList.add("actual");
   }
-
-  event.target.classList.add("actual");
 }
 
 const more = document.querySelector(".more");
@@ -83,46 +97,6 @@ function convertGenderToString(gender) {
 }
 
 const placeForComment = document.querySelector(".comments");
-
-function fetchCatComments(idComment) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", "http://localhost:3000/threads/" + idComment);
-  xhr.send();
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-    let threads = xhr.responseText;
-
-    try {
-      threads = JSON.parse(threads);
-    } catch {
-      alert("Извините, в данных ошибка");
-    }
-
-    displayComments(placeForComment, threads);
-  };
-}
-
-function fetchCatInfo(idCat) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", "http://localhost:3000/cats/" + idCat);
-  xhr.send();
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-    let cats = xhr.responseText;
-
-    try {
-      cats = JSON.parse(cats);
-    } catch {
-      alert("Извините, в данных ошибка");
-    }
-    displayCatInfo(more, cats);
-    fetchCatComments(cats.payload.threadId);
-  };
-}
 
 function displayComments(container, dataComments) {
   const listComments = dataComments.payload;
@@ -224,7 +198,7 @@ function sendNewCat() {
     try {
       newCat = JSON.parse(newCat);
     } catch {
-      alert("Извините, ошибка в ответе сервера");
+      alert("Извините, в данных ошибка");
     }
 
     replyToUser(newCat, xhr.status);
