@@ -30,6 +30,10 @@ function fetchData(url, callback, headerName, headerValue) {
   };
 }
 
+const more = document.querySelector(".more");
+const placeForComment = document.querySelector(".comments");
+const sectionForFoto = document.querySelector(".userpic");
+
 function buildListCats(dataList, container) {
   container.textContent = "";
   if (!dataList) {
@@ -94,8 +98,6 @@ function buildListCats(dataList, container) {
   }
 }
 
-const more = document.querySelector(".more");
-
 function displayCatInfo(container, info) {
   container.textContent = "";
   if (!info) {
@@ -119,8 +121,6 @@ function convertGenderToString(gender) {
     return "Мальчик ";
   } else return "Девочка ";
 }
-
-const placeForComment = document.querySelector(".comments");
 
 function displayComments(container, dataComments) {
   container.textContent = "";
@@ -169,8 +169,6 @@ function makeDummyErr(container) {
   dummy.className = "dummy--error";
   container.append(dummy);
 }
-
-const sectionForFoto = document.querySelector(".userpic");
 
 function displayCatPhoto(container, url) {
   container.textContent = "";
