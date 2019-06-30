@@ -100,8 +100,8 @@ body {
   background-color: rgb(197, 208, 223);
 }
 
-.form__name-of-cat,
-.form__age-of-cat {
+.form__cat-name,
+.form__cat-age {
   font-size: 24px;
   margin-left: 20px;
   margin-bottom: 20px;
@@ -110,7 +110,7 @@ body {
   border: none;
 }
 
-.form__gender-of-cats {
+.form__cat-gender {
   font-size: 24px;
   margin-left: 20px;
   width: 154px;
