@@ -28,6 +28,7 @@ function fetchData(url, callback, headerName, headerValue) {
 
 function makeDummyErr(container) {
   const dummy = document.createElement("p");
+
   dummy.textContent = "Извините, ошибка в данных";
   dummy.className = "dummy--error";
   container.append(dummy);
@@ -39,6 +40,7 @@ function convertGenderToString(gender) {
 
 function displayCatInfo(container, info) {
   container.textContent = "";
+
   if (!info) {
     makeDummyErr(container);
     return;
@@ -50,7 +52,7 @@ function displayCatInfo(container, info) {
   pGender.textContent = convertGenderToString(info.payload.gender);
   const pAge = document.createElement("p");
   pAge.textContent = "Лет: " + info.payload.age;
-  container.appendChild(headName, pGender, pAge);
+  container.appendChild(headName);
   container.appendChild(pGender);
   container.appendChild(pAge);
 }
@@ -59,14 +61,15 @@ function makeDummyForComments(container) {
   const dummy = document.createElement("p");
   dummy.textContent = "Здесь еще нет ни одного комментария";
   dummy.className = "dummy";
-  container.append(dummy);
+  container.appendChild(dummy);
 }
 
 function displayComments(container, dataComments) {
   container.textContent = "";
+
   const headerComments = document.createElement("h3");
-  headerComments.textContent = "Коммментарии";
-  container.append(headerComments);
+  headerComments.textContent = "Комментарии";
+  container.appendChild(headerComments);
 
   if (!dataComments.payload) {
     makeDummyErr(container);
@@ -80,16 +83,16 @@ function displayComments(container, dataComments) {
     return;
   }
 
-  listComments.comments.forEach(element => {
+  listComments.comments.forEach(comment => {
     const divCommment = document.createElement("div");
     divCommment.className = "comment__item";
     const autor = document.createElement("p");
     autor.className = "comment__author";
-    autor.textContent = element.author;
+    autor.textContent = comment.author;
 
     const textComment = document.createElement("p");
     textComment.className = "comment__text";
-    textComment.textContent = element.content;
+    textComment.textContent = comment.content;
     divCommment.appendChild(autor);
     divCommment.appendChild(textComment);
     container.appendChild(divCommment);
@@ -107,20 +110,23 @@ function displayCatPhoto(container, url) {
   container.appendChild(photo);
 }
 
-function currentItem() {
-  const anyLink = document.querySelectorAll(".nav__link");
-  anyLink.forEach(element => {
-    element.classList.remove("actual");
+function setCurrentItem(event) {
+  const navigationLinks = document.querySelectorAll(".nav__link");
+
+  navigationLinks.forEach(link => {
+    link.classList.remove("actual");
   });
+
   event.target.classList.add("actual");
 }
 
 const more = document.querySelector(".more");
-const placeForComment = document.querySelector(".comments");
-const sectionForFoto = document.querySelector(".userpic");
+const commentPlace = document.querySelector(".comments");
+const sectionFoto = document.querySelector(".userpic");
 
 function buildListCats(dataList, container) {
   container.textContent = "";
+
   if (!dataList) {
     makeDummyErr(container);
     return;
@@ -129,29 +135,30 @@ function buildListCats(dataList, container) {
   const ulCats = document.createElement("ul");
   ulCats.classList.add("nav__list");
 
-  dataList.forEach(element => {
+  dataList.forEach(cat => {
     const liItem = document.createElement("li");
     liItem.classList.add("nav__item");
     const liReferense = document.createElement("a");
     liReferense.classList.add("nav__link");
     liReferense.setAttribute("href", "#");
-    liReferense.setAttribute("data-id", element.id);
-    liReferense.textContent = element.name;
+    liReferense.setAttribute("data-id", cat.id);
+    liReferense.textContent = cat.name;
     liItem.appendChild(liReferense);
     ulCats.appendChild(liItem);
   });
 
   container.appendChild(ulCats);
 
-  ulCats.addEventListener("click", function() {
+  ulCats.addEventListener("click", function(event) {
     fetchData(
       "http://localhost:3000/cats/" + event.target.getAttribute("data-id"),
+
       function(catsData) {
         displayCatInfo(more, catsData);
         fetchData(
           "http://localhost:3000/threads/" + catsData.payload.threadId,
           function(catsData) {
-            displayComments(placeForComment, catsData);
+            displayComments(commentPlace, catsData);
           }
         );
       }
@@ -162,20 +169,20 @@ function buildListCats(dataList, container) {
         "/photo/" +
         event.target.getAttribute("data-id"),
       function(catsData) {
-        displayCatPhoto(sectionForFoto, catsData);
+        displayCatPhoto(sectionFoto, catsData);
       },
       "x-api-key",
       "vzuh"
     );
 
-    currentItem(event);
+    setCurrentItem(event);
   });
 }
 
-const list = document.querySelector(".nav");
+const navigationMenu = document.querySelector(".nav");
 
 fetchData("http://localhost:3000/cats", function(catsData) {
-  buildListCats(catsData, list);
+  buildListCats(catsData, navigationMenu);
 });
 
 function replyToUser(answer, status) {
@@ -192,17 +199,35 @@ function replyToUser(answer, status) {
     alert("Проверьте адекватность введенных данных");
   }
 
-  if (status == 406) {
+  if (status === 406) {
     alert(answer.message);
   }
 }
 
-function sendNewCat() {
+function sendNewCat(event) {
   event.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const age = document.getElementById("age").value;
+
+  if (name === "" || age === "") {
+    alert("В огороде пусто, выросла капуста!");
+    return;
+  }
+
+  if (/[^а-яё]+/gi.test(name)) {
+    alert("Только кириллица!");
+    return;
+  }
+  if (age > 38) {
+    alert("Стока не живут!");
+    return;
+  }
+
   const xhr = new XMLHttpRequest();
   const body = JSON.stringify({
-    name: document.getElementById("name").value,
-    age: document.getElementById("age").value,
+    name: name,
+    age: age,
     gender: document.getElementById("gender").value
   });
 
