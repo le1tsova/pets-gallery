@@ -110,14 +110,14 @@ function displayCatPhoto(container, url) {
   container.appendChild(photo);
 }
 
-function setCurrentItem(event) {
+function setCurrentItem(clickedLink) {
   const navigationLinks = document.querySelectorAll(".nav__link");
 
   navigationLinks.forEach(link => {
     link.classList.remove("actual");
   });
 
-  event.target.classList.add("actual");
+  clickedLink.classList.add("actual");
 }
 
 const more = document.querySelector(".more");
@@ -175,7 +175,7 @@ function buildListCats(dataList, container) {
       "vzuh"
     );
 
-    setCurrentItem(event);
+    setCurrentItem(event.target);
   });
 }
 
@@ -190,17 +190,18 @@ function replyToUser(answer, status) {
     alert("Извините, в данных ответа ошибка");
     return;
   }
-
-  if (status === 201) {
-    alert(answer.payload);
-  }
-
-  if (status === 400) {
-    alert("Проверьте адекватность введенных данных");
-  }
-
-  if (status === 406) {
-    alert(answer.message);
+  switch (status) {
+    case 201:
+      alert(answer.payload);
+      break;
+    case 400:
+      alert("Проверьте адекватность введенных данных");
+      break;
+    case 406:
+      alert(answer.message);
+      break;
+    default:
+      alert("Код ответа: " + status);
   }
 }
 
