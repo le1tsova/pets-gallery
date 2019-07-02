@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="style.css" rel="stylesheet" />
+    <title>Pets</title>
+
+    <meta charset="utf-8" />
+    <meta name="keywords" content="фото, смотреть, полностью, породы, собаки" />
+    <meta
+      name="descripton"
+      content="Фотографии собак с описанием и комментариями"
+    />
+  </head>
+
+  <body>
+    <main class="wrapper">
+      <form class="form">
+        <input type="text" id="name" placeholder="Имя" class="form__cat-name" />
+        <input
+          type="number"
+          id="age"
+          placeholder="Возраст"
+          class="form__cat-age"
+        />
+        <select name="select" id="gender" class="form__cat-gender">
+          <option value="female">Девочка</option>
+          <option value="male">Мальчик</option>
+        </select>
+
+        <button class="button-submit">Добавить</button>
+      </form>
+      <section class="central-block">
+        <nav class="nav"></nav>
+        <section class="content">
+          <figure class="userpic"></figure>
+          <aside class="more"></aside>
+          <aside class="comments"></aside>
+        </section>
+      </section>
+    </main>
+    <script src="main.js"></script>
+  </body>
+</html>
