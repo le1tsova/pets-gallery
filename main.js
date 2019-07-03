@@ -1,29 +1,18 @@
 "use strict";
 
-function fetchData(url, callback, headerName, headerValue) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", url);
-
-  if (headerName && headerValue) {
-    xhr.setRequestHeader(headerName, headerValue);
-  }
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-    let catsData = xhr.responseText;
-
-    try {
-      catsData = JSON.parse(catsData);
-    } catch {
-      catsData = undefined;
-    }
-
-    callback(catsData);
+function fetchData(url, callback, header) {
+  const options = {
+    method: "GET"
   };
 
-  xhr.send();
+  if (header) {
+    options.headers = header;
+  }
+
+  fetch(url, options)
+    .then(response => response.json())
+    .then(data => callback(data))
+    .catch(() => callback(undefined));
 }
 
 function makeDummyErr(container) {
@@ -171,8 +160,9 @@ function buildListCats(dataList, container) {
       function(catsData) {
         displayCatPhoto(sectionFoto, catsData);
       },
-      "x-api-key",
-      "vzuh"
+      {
+        "x-api-key": "vzuh"
+      }
     );
 
     setCurrentItem(event.target);
@@ -225,30 +215,23 @@ function sendNewCat(event) {
     return;
   }
 
-  const xhr = new XMLHttpRequest();
-  const body = JSON.stringify({
-    name: name,
-    age: age,
-    gender: document.getElementById("gender").value
-  });
-
-  xhr.open("POST", "http://localhost:3000/cats");
-  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-    let newCat = xhr.responseText;
-
-    try {
-      newCat = JSON.parse(newCat);
-      replyToUser(newCat, xhr.status);
-    } catch {
-      replyToUser(undefined);
-    }
-  };
-  xhr.send(body);
+  fetch("http://localhost:3000/cats", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: name,
+      age: age,
+      gender: document.getElementById("gender").value
+    })
+  })
+    .then(response => {
+      response.json().then(data => {
+        replyToUser(data, response.status);
+      });
+    })
+    .catch(() => replyToUser(undefined));
 }
 const form = document.querySelector(".form");
 
