@@ -1,112 +1,125 @@
 "use strict";
 
-function fetchData(url, callback, header) {
-  const options = {
-    method: "GET"
-  };
+function fetchData(url, header) {
+    return new Promise(function(resolve, reject) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        if (header) {
+            for (let key in header) {
+                xhr.setRequestHeader(key, header[key]);
+            }
+        }
 
-  if (header) {
-    options.headers = header;
-  }
-
-  fetch(url, options)
-    .then(response => response.json())
-    .then(data => callback(data))
-    .catch(() => callback(undefined));
+        xhr.onreadystatechange = function() {
+            if (this.readyState !== 4) {
+                return;
+            }
+            let data = xhr.responseText;
+            try {
+                data = JSON.parse(data);
+                resolve(data);
+            } catch {
+                const error = new Error(this.statusText);
+                error.code = this.status;
+                reject(error);
+            }
+        };
+        xhr.send();
+    });
 }
 
 function makeDummyErr(container) {
-  const dummy = document.createElement("p");
+    const dummy = document.createElement("p");
 
-  dummy.textContent = "Извините, ошибка в данных";
-  dummy.className = "dummy--error";
-  container.append(dummy);
+    dummy.textContent = "Извините, ошибка в данных";
+    dummy.className = "dummy--error";
+    container.append(dummy);
 }
 
 function convertGenderToString(gender) {
-  return gender === "male" ? "Мальчик" : "Девочка";
+    return gender === "male" ? "Мальчик" : "Девочка";
 }
 
 function displayCatInfo(container, info) {
-  container.textContent = "";
+    container.textContent = "";
 
-  if (!info) {
-    makeDummyErr(container);
-    return;
-  }
+    if (!info) {
+        makeDummyErr(container);
+        return;
+    }
 
-  const headName = document.createElement("h1");
-  headName.textContent = info.payload.name;
-  const pGender = document.createElement("p");
-  pGender.textContent = convertGenderToString(info.payload.gender);
-  const pAge = document.createElement("p");
-  pAge.textContent = "Лет: " + info.payload.age;
-  container.appendChild(headName);
-  container.appendChild(pGender);
-  container.appendChild(pAge);
+    const headName = document.createElement("h1");
+    headName.textContent = info.payload.name;
+    const pGender = document.createElement("p");
+    pGender.textContent = convertGenderToString(info.payload.gender);
+    const pAge = document.createElement("p");
+    pAge.textContent = "Лет: " + info.payload.age;
+    container.appendChild(headName);
+    container.appendChild(pGender);
+    container.appendChild(pAge);
 }
 
 function makeDummyForComments(container) {
-  const dummy = document.createElement("p");
-  dummy.textContent = "Здесь еще нет ни одного комментария";
-  dummy.className = "dummy";
-  container.appendChild(dummy);
+    const dummy = document.createElement("p");
+    dummy.textContent = "Здесь еще нет ни одного комментария";
+    dummy.className = "dummy";
+    container.appendChild(dummy);
 }
 
 function displayComments(container, dataComments) {
-  container.textContent = "";
+    container.textContent = "";
 
-  const headerComments = document.createElement("h3");
-  headerComments.textContent = "Комментарии";
-  container.appendChild(headerComments);
+    const headerComments = document.createElement("h3");
+    headerComments.textContent = "Комментарии";
+    container.appendChild(headerComments);
 
-  if (!dataComments.payload) {
-    makeDummyErr(container);
-    return;
-  }
+    if (!dataComments.payload) {
+        makeDummyErr(container);
+        return;
+    }
 
-  const listComments = dataComments.payload;
+    const listComments = dataComments.payload;
 
-  if (!listComments.comments.length) {
-    makeDummyForComments(container);
-    return;
-  }
+    if (!listComments.comments.length) {
+        makeDummyForComments(container);
+        return;
+    }
 
-  listComments.comments.forEach(comment => {
-    const divCommment = document.createElement("div");
-    divCommment.className = "comment__item";
-    const autor = document.createElement("p");
-    autor.className = "comment__author";
-    autor.textContent = comment.author;
+    listComments.comments.forEach(comment => {
+        const divCommment = document.createElement("div");
+        divCommment.className = "comment__item";
+        const autor = document.createElement("p");
+        autor.className = "comment__author";
+        autor.textContent = comment.author;
 
-    const textComment = document.createElement("p");
-    textComment.className = "comment__text";
-    textComment.textContent = comment.content;
-    divCommment.appendChild(autor);
-    divCommment.appendChild(textComment);
-    container.appendChild(divCommment);
-  });
+        const textComment = document.createElement("p");
+        textComment.className = "comment__text";
+        textComment.textContent = comment.content;
+        divCommment.appendChild(autor);
+        divCommment.appendChild(textComment);
+        container.appendChild(divCommment);
+    });
 }
 
 function displayCatPhoto(container, url) {
-  container.textContent = "";
+    container.textContent = "";
 
-  if (!url.payload) return;
+    if (!url) return;
 
-  const photo = document.createElement("img");
-  photo.setAttribute("src", url.payload);
-  photo.className = "userpic__image";
-  container.appendChild(photo);
+    const photo = document.createElement("img");
+    photo.setAttribute("src", url.payload);
+    photo.className = "userpic__image";
+    container.appendChild(photo);
 }
 
 function setCurrentItem(clickedLink) {
-  const navigationLinks = document.querySelectorAll(".nav__link");
+    const navigationLinks = document.querySelectorAll(".nav__link");
 
-  navigationLinks.forEach(link => {
-    link.classList.remove("actual");
-  });
+    navigationLinks.forEach(link => {
+        link.classList.remove("actual");
+    });
 
-  clickedLink.classList.add("actual");
+    clickedLink.classList.add("actual");
 }
 
 const more = document.querySelector(".more");
@@ -114,125 +127,136 @@ const commentPlace = document.querySelector(".comments");
 const sectionFoto = document.querySelector(".userpic");
 
 function buildListCats(dataList, container) {
-  container.textContent = "";
+    container.textContent = "";
 
-  if (!dataList) {
-    makeDummyErr(container);
-    return;
-  }
+    if (!dataList) {
+        makeDummyErr(container);
+        return;
+    }
 
-  const ulCats = document.createElement("ul");
-  ulCats.classList.add("nav__list");
+    const ulCats = document.createElement("ul");
+    ulCats.classList.add("nav__list");
 
-  dataList.forEach(cat => {
-    const liItem = document.createElement("li");
-    liItem.classList.add("nav__item");
-    const liReferense = document.createElement("a");
-    liReferense.classList.add("nav__link");
-    liReferense.setAttribute("href", "#");
-    liReferense.setAttribute("data-id", cat.id);
-    liReferense.textContent = cat.name;
-    liItem.appendChild(liReferense);
-    ulCats.appendChild(liItem);
-  });
+    dataList.forEach(cat => {
+        const liItem = document.createElement("li");
+        liItem.classList.add("nav__item");
+        const liReferense = document.createElement("a");
+        liReferense.classList.add("nav__link");
+        liReferense.setAttribute("href", "#");
+        liReferense.setAttribute("data-id", cat.id);
+        liReferense.textContent = cat.name;
+        liItem.appendChild(liReferense);
+        ulCats.appendChild(liItem);
+    });
 
-  container.appendChild(ulCats);
+    container.appendChild(ulCats);
 
-  ulCats.addEventListener("click", function(event) {
-    fetchData(
-      "http://localhost:3000/cats/" + event.target.getAttribute("data-id"),
-
-      function(catsData) {
-        displayCatInfo(more, catsData);
+    ulCats.addEventListener("click", function(event) {
         fetchData(
-          "http://localhost:3000/threads/" + catsData.payload.threadId,
-          function(catsData) {
-            displayComments(commentPlace, catsData);
-          }
-        );
-      }
-    );
+                "http://localhost:3000/cats/" + event.target.getAttribute("data-id")
+            )
+            .then(function(data) {
+                displayCatInfo(more, data);
 
-    fetchData(
-      "http://localhost:3000/cats" +
-        "/photo/" +
-        event.target.getAttribute("data-id"),
-      function(catsData) {
-        displayCatPhoto(sectionFoto, catsData);
-      },
-      {
-        "x-api-key": "vzuh"
-      }
-    );
+                fetchData(
+                    "http://localhost:3000/threads/" + data.payload.threadId
+                ).then(function(data) {
+                    displayComments(commentPlace, data);
+                });
+            })
+            .catch(displayCatInfo(more, undefined));
 
-    setCurrentItem(event.target);
-  });
+        fetchData(
+                "http://localhost:3000/cats" +
+                "/photo/" +
+                event.target.getAttribute("data-id"), {
+                    "x-api-key": "vzuh"
+                }
+            )
+            .then(data => displayCatPhoto(sectionFoto, data))
+            .catch(displayCatPhoto(sectionFoto, undefined));
+
+        setCurrentItem(event.target);
+    });
 }
 
 const navigationMenu = document.querySelector(".nav");
 
-fetchData("http://localhost:3000/cats", function(catsData) {
-  buildListCats(catsData, navigationMenu);
-});
+fetchData("http://localhost:3000/cats")
+    .then(data => buildListCats(data, navigationMenu))
+    .catch(buildListCats(undefined, navigationMenu));
 
 function replyToUser(answer, status) {
-  if (!answer) {
-    alert("Извините, в данных ответа ошибка");
-    return;
-  }
-  switch (status) {
-    case 201:
-      alert(answer.payload);
-      break;
-    case 400:
-      alert("Проверьте адекватность введенных данных");
-      break;
-    case 406:
-      alert(answer.message);
-      break;
-    default:
-      alert("Код ответа: " + status);
-  }
+    if (!answer) {
+        alert("Извините, ничего разобрать, но есть код: " + status);
+        return;
+    }
+    switch (status) {
+        case 201:
+            alert(answer.payload);
+            break;
+        case 400:
+            alert("Проверьте адекватность введенных данных");
+            break;
+        case 406:
+            alert(answer.message);
+            break;
+        default:
+            alert('Извините, другого ответа у нас для вас нет: ' + answer + ". Код: " + status);
+    }
 }
 
 function sendNewCat(event) {
-  event.preventDefault();
+    event.preventDefault();
 
-  const name = document.getElementById("name").value;
-  const age = document.getElementById("age").value;
+    const name = document.getElementById("name").value;
+    const age = document.getElementById("age").value;
 
-  if (name === "" || age === "") {
-    alert("В огороде пусто, выросла капуста!");
-    return;
-  }
+    if (name === "" || age === "") {
+        alert("В огороде пусто, выросла капуста!");
+        return;
+    }
 
-  if (/[^а-яё]+/gi.test(name)) {
-    alert("Только кириллица!");
-    return;
-  }
-  if (age > 38) {
-    alert("Стока не живут!");
-    return;
-  }
+    if (/[^а-яё]+/gi.test(name)) {
+        alert("Только кириллица!");
+        return;
+    }
+    if (age > 38) {
+        alert("Стока не живут!");
+        return;
+    }
 
-  fetch("http://localhost:3000/cats", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: name,
-      age: age,
-      gender: document.getElementById("gender").value
+    return new Promise(function(resolve, reject) {
+        const xhr = new XMLHttpRequest();
+        const body = JSON.stringify({
+            name: name,
+            age: age,
+            gender: document.getElementById("gender").value
+        });
+        xhr.open("POST", "http://localhost:3000/cats");
+        xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== 4) {
+                return;
+            }
+            let newCat = xhr.responseText;
+            try {
+                newCat = JSON.parse(newCat);
+                resolve([newCat, xhr.status])
+            } catch {
+                const error = new Error(xhr.status);
+                error.code = xhr.status;
+                reject(error);
+            }
+        };
+        xhr.send(body);
     })
-  })
-    .then(response => {
-      response.json().then(data => {
-        replyToUser(data, response.status);
-      });
-    })
-    .catch(() => replyToUser(undefined));
-}
+};
+
 const form = document.querySelector(".form");
 
-form.addEventListener("submit", sendNewCat);
+form.addEventListener("submit", function(event) {
+    sendNewCat(event)
+    .then(data => replyToUser(data[0], data[1]))
+    .catch((status) => replyToUser(undefined, status.code));
+});
