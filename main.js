@@ -1,12 +1,12 @@
 "use strict";
 
-function fetchData(url, header) {
+function fetchData(url, headers) {
   return new Promise(function(resolve, reject) {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
-    if (header) {
-      Object.keys(header).forEach(element => {
-        xhr.setRequestHeader(element, header[element]);
+    if (headers) {
+      Object.keys(headers).forEach(header => {
+        xhr.setRequestHeader(header, headers[header]);
       });
     }
 
@@ -18,7 +18,8 @@ function fetchData(url, header) {
       try {
         data = JSON.parse(data);
         resolve(data);
-      } catch  {
+      } catch {
+        
         reject();
       }
     };
@@ -71,14 +72,10 @@ function displayComments(container, dataComments) {
   headerComments.textContent = "Комментарии";
   container.appendChild(headerComments);
 
-  
-  if (!dataComments||dataComments.error) {
-    
+  if (!dataComments || dataComments.error) {
     makeDummyErr(container);
     return;
   }
-
-  
 
   if (!dataComments.payload.comments.length) {
     makeDummyForComments(container);
@@ -101,13 +98,13 @@ function displayComments(container, dataComments) {
   });
 }
 
-function displayCatPhoto(container, url) {
+function displayCatPhoto(container, photoData) {
   container.textContent = "";
 
-  if (!url|| url.error) return;
+  if (!photoData || photoData.error) return;
 
   const photo = document.createElement("img");
-  photo.setAttribute("src", url.payload);
+  photo.setAttribute("src", photoData.payload);
   photo.className = "userpic__image";
   container.appendChild(photo);
 }
@@ -153,20 +150,23 @@ function buildListCats(dataList, container) {
 
   ulCats.addEventListener("click", function(event) {
     const catId = event.target.getAttribute("data-id");
-    
+
     fetchData("http://localhost:3000/cats/" + catId)
       .then(function(data) {
         displayCatInfo(more, data);
         return data.payload.threadId;
       })
-      .then(function(id) {
-        fetchData("http://localhost:3000/threads/" + id)
-          .then(function(data) {
-            displayComments(commentPlace, data);
-          })
-          .catch(displayComments(commentPlace, undefined));
+      .catch(function() {
+        displayCatInfo(more, undefined);
+        Promise.reject();
       })
-      .catch(displayCatInfo(more, undefined));
+      .then(function(threadId) {
+        return fetchData("http://localhost:3000/threads/" + threadId);
+      })
+      .then(function(data) {
+        displayComments(commentPlace, data);
+      })
+      .catch(displayComments(commentPlace, undefined));
 
     fetchData("http://localhost:3000/cats" + "/photo/" + catId, {
       "x-api-key": "vzuh"
@@ -183,31 +183,6 @@ const navigationMenu = document.querySelector(".nav");
 fetchData("http://localhost:3000/cats")
   .then(data => buildListCats(data, navigationMenu))
   .catch(buildListCats(undefined, navigationMenu));
-
-function replyToUser(answer, status) {
-  if (!answer) {
-    alert("Извините, ничего не разобрать, но есть код: " + status);
-    return;
-  }
-  switch (status) {
-    case 201:
-      alert(answer.payload);
-      break;
-    case 400:
-      alert("Проверьте адекватность введенных данных");
-      break;
-    case 406:
-      alert(answer.message);
-      break;
-    default:
-      alert(
-        "Извините, другого ответа у нас для вас нет: " +
-          answer +
-          ". Код: " +
-          status
-      );
-  }
-}
 
 function sendNewCat(event) {
   event.preventDefault();
@@ -252,6 +227,31 @@ function sendNewCat(event) {
     };
     xhr.send(body);
   });
+}
+
+function replyToUser(answer, status) {
+  if (!answer) {
+    alert("Извините, ничего не разобрать, но есть код: " + status);
+    return;
+  }
+  switch (status) {
+    case 201:
+      alert(answer.payload);
+      break;
+    case 400:
+      alert("Проверьте адекватность введенных данных");
+      break;
+    case 406:
+      alert(answer.message);
+      break;
+    default:
+      alert(
+        "Извините, другого ответа у нас для вас нет: " +
+          answer +
+          ". Код: " +
+          status
+      );
+  }
 }
 
 const form = document.querySelector(".form");
