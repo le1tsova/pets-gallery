@@ -19,7 +19,6 @@ function fetchData(url, headers) {
         data = JSON.parse(data);
         resolve(data);
       } catch {
-        
         reject();
       }
     };
@@ -65,24 +64,24 @@ function makeDummyForComments(container) {
   container.appendChild(dummy);
 }
 
-function displayComments(container, dataComments) {
+function displayComments(container, response) {
   container.textContent = "";
 
   const headerComments = document.createElement("h3");
   headerComments.textContent = "Комментарии";
   container.appendChild(headerComments);
 
-  if (!dataComments || dataComments.error) {
+  if (!response || response.error) {
     makeDummyErr(container);
     return;
   }
 
-  if (!dataComments.payload.comments.length) {
+  if (!response.payload.comments.length) {
     makeDummyForComments(container);
     return;
   }
 
-  dataComments.payload.comments.forEach(comment => {
+  response.payload.comments.forEach(comment => {
     const divCommment = document.createElement("div");
     divCommment.className = "comment__item";
     const autor = document.createElement("p");
@@ -98,13 +97,13 @@ function displayComments(container, dataComments) {
   });
 }
 
-function displayCatPhoto(container, photoData) {
+function displayCatPhoto(container, response) {
   container.textContent = "";
 
-  if (!photoData || photoData.error) return;
+  if (!response || response.error) return;
 
   const photo = document.createElement("img");
-  photo.setAttribute("src", photoData.payload);
+  photo.setAttribute("src", response.payload);
   photo.className = "userpic__image";
   container.appendChild(photo);
 }
