@@ -159,12 +159,8 @@ function buildListCats(dataList, container) {
         displayCatInfo(more, undefined);
         Promise.reject();
       })
-      .then(function(threadId) {
-        return fetchData("http://localhost:3000/threads/" + threadId);
-      })
-      .then(function(data) {
-        displayComments(commentPlace, data);
-      })
+      .then(threadId => fetchData("http://localhost:3000/threads/" + threadId))
+      .then(data => displayComments(commentPlace, data))
       .catch(displayComments(commentPlace, undefined));
 
     fetchData("http://localhost:3000/cats" + "/photo/" + catId, {
