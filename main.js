@@ -1,7 +1,7 @@
 "use strict";
 
 function fetchData(url, headers) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function fetchDataExecutor(resolve, reject) {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     if (headers) {
@@ -9,6 +9,10 @@ function fetchData(url, headers) {
         xhr.setRequestHeader(header, headers[header]);
       });
     }
+
+    xhr.onerror = function(e) {
+      reject(e);
+    };
 
     xhr.onreadystatechange = function() {
       if (this.readyState !== 4) {
@@ -22,6 +26,7 @@ function fetchData(url, headers) {
         reject();
       }
     };
+
     xhr.send();
   });
 }
@@ -157,17 +162,17 @@ function buildListCats(dataList, container) {
       })
       .catch(function() {
         displayCatInfo(more, undefined);
-        Promise.reject();
+        return Promise.reject();
       })
       .then(threadId => fetchData("http://localhost:3000/threads/" + threadId))
       .then(data => displayComments(commentPlace, data))
-      .catch(displayComments(commentPlace, undefined));
+      .catch(() => displayComments(commentPlace, undefined));
 
     fetchData("http://localhost:3000/cats" + "/photo/" + catId, {
       "x-api-key": "vzuh"
     })
       .then(data => displayCatPhoto(sectionFoto, data))
-      .catch(displayCatPhoto(sectionFoto, undefined));
+      .catch(() => displayCatPhoto(sectionFoto, undefined));
 
     setCurrentItem(event.target);
   });
@@ -177,7 +182,7 @@ const navigationMenu = document.querySelector(".nav");
 
 fetchData("http://localhost:3000/cats")
   .then(data => buildListCats(data, navigationMenu))
-  .catch(buildListCats(undefined, navigationMenu));
+  .catch(() => buildListCats(undefined, navigationMenu));
 
 function sendNewCat(event) {
   event.preventDefault();
