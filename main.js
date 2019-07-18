@@ -4,34 +4,11 @@ const BASE_URL = "http://localhost:3000/";
 const CATS_URL = `${BASE_URL}cats`;
 const THREADS_URL = `${BASE_URL}threads/`;
 
-function fetchData(url, method, headers) {
+function fetchData(url, method, headers, body) {
   return new Promise(function fetchDataExecutor(resolve, reject) {
     const xhr = new XMLHttpRequest();
+
     xhr.open(method, url);
-    const name = document.getElementById("name").value;
-    const age = document.getElementById("age").value;
-
-    if (method === "POST") {
-      if (name === "" || age === "") {
-        alert("В огороде пусто, выросла капуста!");
-        return;
-      }
-
-      if (/[^а-яё]+/gi.test(name)) {
-        alert("Только кириллица!");
-        return;
-      }
-      if (age > 38) {
-        alert("Стока не живут!");
-        return;
-      }
-    }
-
-    const body = JSON.stringify({
-      name: name,
-      age: age,
-      gender: document.getElementById("gender").value
-    });
 
     if (headers) {
       Object.keys(headers).forEach(header => {
@@ -240,11 +217,43 @@ function replyToUser(answer, status) {
 
 const form = document.querySelector(".form");
 
-form.addEventListener("submit", function(event) {
+function sendNewCat(event) {
   event.preventDefault();
-  fetchData(CATS_URL, "POST", {
-    "Content-type": "application/json; charset=utf-8"
-  })
+  const name = document.getElementById("name").value;
+  const age = document.getElementById("age").value;
+
+  if (name === "" || age === "") {
+    alert("В огороде пусто, выросла капуста!");
+    return;
+  }
+
+  if (/[^а-яё]+/gi.test(name)) {
+    alert("Только кириллица!");
+    return;
+  }
+  if (age > 38) {
+    alert("Стока не живут!");
+    return;
+  }
+
+  const body = JSON.stringify({
+    name: name,
+    age: age,
+    gender: document.getElementById("gender").value
+  });
+
+  return fetchData(
+    CATS_URL,
+    "POST",
+    {
+      "Content-type": "application/json; charset=utf-8"
+    },
+    body
+  );
+}
+
+form.addEventListener("submit", function() {
+  sendNewCat(event)
     .then(data => replyToUser(...data))
     .catch(status => replyToUser(undefined, status));
 });
