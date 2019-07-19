@@ -4,7 +4,8 @@ const BASE_URL = "http://localhost:3000/";
 const CATS_URL = `${BASE_URL}cats`;
 const THREADS_URL = `${BASE_URL}threads/`;
 
-function fetchData(url, method, headers, body) {
+function fetchData(url, options = {}) {
+  const { method = "GET", headers = undefined, body } = options;
   return new Promise(function fetchDataExecutor(resolve, reject) {
     const xhr = new XMLHttpRequest();
 
@@ -161,21 +162,24 @@ function buildListCats(dataList, container) {
   ulCats.addEventListener("click", function(event) {
     const catId = event.target.getAttribute("data-id");
 
-    fetchData(CATS_URL + "/" + catId, "GET")
+    fetchData(CATS_URL + "/" + catId)
       .then(function(data) {
-        displayCatInfo(more, data[0]);
-        return data[0].payload.threadId;
+        const [response] = data;
+        displayCatInfo(more, response);
+        return response.payload.threadId;
       })
       .catch(function() {
         displayCatInfo(more, undefined);
         return Promise.reject();
       })
-      .then(threadId => fetchData(THREADS_URL + threadId, "GET"))
+      .then(threadId => fetchData(THREADS_URL + threadId))
       .then(data => displayComments(commentPlace, data[0]))
       .catch(() => displayComments(commentPlace, undefined));
 
-    fetchData(CATS_URL + "/photo/" + catId, "GET", {
-      "x-api-key": "vzuh"
+    fetchData(CATS_URL + "/photo/" + catId, {
+      headers: {
+        "x-api-key": "vzuh"
+      }
     })
       .then(data => displayCatPhoto(sectionFoto, data[0]))
       .catch(() => displayCatPhoto(sectionFoto, undefined));
@@ -186,7 +190,7 @@ function buildListCats(dataList, container) {
 
 const navigationMenu = document.querySelector(".nav");
 
-fetchData(CATS_URL, "GET")
+fetchData(CATS_URL)
   .then(data => buildListCats(data[0], navigationMenu))
   .catch(() => buildListCats(undefined, navigationMenu));
 
@@ -242,14 +246,13 @@ function sendNewCat(event) {
     gender: document.getElementById("gender").value
   });
 
-  return fetchData(
-    CATS_URL,
-    "POST",
-    {
+  return fetchData(CATS_URL, {
+    method: "POST",
+    headers: {
       "Content-type": "application/json; charset=utf-8"
     },
-    body
-  );
+    body: body
+  });
 }
 
 form.addEventListener("submit", function() {
