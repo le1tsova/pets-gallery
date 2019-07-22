@@ -1,11 +1,11 @@
 "use strict";
 
 const BASE_URL = "http://localhost:3000/";
-const CATS_URL = `${BASE_URL}cats`;
+const CATS_URL = `${BASE_URL}cats/`;
 const THREADS_URL = `${BASE_URL}threads/`;
 
 function fetchData(url, options = {}) {
-  const { method = "GET", headers = undefined, body } = options;
+  const { method = "GET", headers, body } = options;
   return new Promise(function fetchDataExecutor(resolve, reject) {
     const xhr = new XMLHttpRequest();
 
@@ -162,7 +162,7 @@ function buildListCats(dataList, container) {
   ulCats.addEventListener("click", function(event) {
     const catId = event.target.getAttribute("data-id");
 
-    fetchData(CATS_URL + "/" + catId)
+    fetchData(CATS_URL + catId)
       .then(function(data) {
         const [response] = data;
         displayCatInfo(more, response);
@@ -176,7 +176,7 @@ function buildListCats(dataList, container) {
       .then(data => displayComments(commentPlace, data[0]))
       .catch(() => displayComments(commentPlace, undefined));
 
-    fetchData(CATS_URL + "/photo/" + catId, {
+    fetchData(CATS_URL + "photo/" + catId, {
       headers: {
         "x-api-key": "vzuh"
       }
@@ -199,6 +199,7 @@ function replyToUser(answer, status) {
     alert("Извините, ничего не разобрать, но есть код: " + status);
     return;
   }
+
   switch (status) {
     case 201:
       alert(answer.payload);
@@ -223,10 +224,11 @@ const form = document.querySelector(".form");
 
 function sendNewCat(event) {
   event.preventDefault();
+
   const name = document.getElementById("name").value;
   const age = document.getElementById("age").value;
 
-  if (name === "" || age === "") {
+  if (!name || !age) {
     alert("В огороде пусто, выросла капуста!");
     return;
   }
