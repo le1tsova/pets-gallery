@@ -195,6 +195,11 @@ fetchData(CATS_URL)
   .catch(() => buildListCats(undefined, navigationMenu));
 
 function replyToUser(answer, status) {
+  if (!status) {
+    alert("Извините, здесь наши полномочия всё, окончены.");
+    return;
+  }
+
   if (!answer) {
     alert("Извините, ничего не разобрать, но есть код: " + status);
     return;
@@ -248,17 +253,17 @@ function sendNewCat(event) {
     gender: document.getElementById("gender").value
   });
 
-  return fetchData(CATS_URL, {
+  fetchData(CATS_URL, {
     method: "POST",
     headers: {
       "Content-type": "application/json; charset=utf-8"
     },
     body: body
-  });
+  })
+    .then(data => replyToUser(...data))
+    .catch(status => replyToUser(undefined, status));
 }
 
 form.addEventListener("submit", function() {
-  sendNewCat(event)
-    .then(data => replyToUser(...data))
-    .catch(status => replyToUser(undefined, status));
+  sendNewCat(event);
 });
