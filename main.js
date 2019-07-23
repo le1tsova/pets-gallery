@@ -264,6 +264,6 @@ function sendNewCat(event) {
     .catch(status => replyToUser(undefined, status));
 }
 
-form.addEventListener("submit", function() {
+form.addEventListener("submit", function(event) {
   sendNewCat(event);
 });
