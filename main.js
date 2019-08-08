@@ -1,29 +1,41 @@
 "use strict";
 
-function fetchData(url, callback, headerName, headerValue) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", url);
+const BASE_URL = "http://localhost:3000/";
+const CATS_URL = `${BASE_URL}cats/`;
+const THREADS_URL = `${BASE_URL}threads/`;
 
-  if (headerName && headerValue) {
-    xhr.setRequestHeader(headerName, headerValue);
-  }
+function fetchData(url, options = {}) {
+  const { method = "GET", headers, body } = options;
+  return new Promise(function fetchDataExecutor(resolve, reject) {
+    const xhr = new XMLHttpRequest();
 
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-    let catsData = xhr.responseText;
+    xhr.open(method, url);
 
-    try {
-      catsData = JSON.parse(catsData);
-    } catch {
-      catsData = undefined;
+    if (headers) {
+      Object.keys(headers).forEach(header => {
+        xhr.setRequestHeader(header, headers[header]);
+      });
     }
 
-    callback(catsData);
-  };
+    xhr.onerror = function(e) {
+      reject(e);
+    };
 
-  xhr.send();
+    xhr.onreadystatechange = function() {
+      if (this.readyState !== 4) {
+        return;
+      }
+      let data = xhr.responseText;
+      try {
+        data = JSON.parse(data);
+        resolve([data, xhr.status]);
+      } catch {
+        reject(xhr.status);
+      }
+    };
+
+    xhr.send(body);
+  });
 }
 
 function makeDummyErr(container) {
@@ -64,26 +76,24 @@ function makeDummyForComments(container) {
   container.appendChild(dummy);
 }
 
-function displayComments(container, dataComments) {
+function displayComments(container, response) {
   container.textContent = "";
 
   const headerComments = document.createElement("h3");
   headerComments.textContent = "Комментарии";
   container.appendChild(headerComments);
 
-  if (!dataComments.payload) {
+  if (!response || response.error) {
     makeDummyErr(container);
     return;
   }
 
-  const listComments = dataComments.payload;
-
-  if (!listComments.comments.length) {
+  if (!response.payload.comments.length) {
     makeDummyForComments(container);
     return;
   }
 
-  listComments.comments.forEach(comment => {
+  response.payload.comments.forEach(comment => {
     const divCommment = document.createElement("div");
     divCommment.className = "comment__item";
     const autor = document.createElement("p");
@@ -99,13 +109,13 @@ function displayComments(container, dataComments) {
   });
 }
 
-function displayCatPhoto(container, url) {
+function displayCatPhoto(container, response) {
   container.textContent = "";
 
-  if (!url.payload) return;
+  if (!response || response.error) return;
 
   const photo = document.createElement("img");
-  photo.setAttribute("src", url.payload);
+  photo.setAttribute("src", response.payload);
   photo.className = "userpic__image";
   container.appendChild(photo);
 }
@@ -150,30 +160,29 @@ function buildListCats(dataList, container) {
   container.appendChild(ulCats);
 
   ulCats.addEventListener("click", function(event) {
-    fetchData(
-      "http://localhost:3000/cats/" + event.target.getAttribute("data-id"),
+    const catId = event.target.getAttribute("data-id");
 
-      function(catsData) {
-        displayCatInfo(more, catsData);
-        fetchData(
-          "http://localhost:3000/threads/" + catsData.payload.threadId,
-          function(catsData) {
-            displayComments(commentPlace, catsData);
-          }
-        );
+    fetchData(CATS_URL + catId)
+      .then(function(data) {
+        const [response] = data;
+        displayCatInfo(more, response);
+        return response.payload.threadId;
+      })
+      .catch(function() {
+        displayCatInfo(more, undefined);
+        return Promise.reject();
+      })
+      .then(threadId => fetchData(THREADS_URL + threadId))
+      .then(data => displayComments(commentPlace, data[0]))
+      .catch(() => displayComments(commentPlace, undefined));
+
+    fetchData(CATS_URL + "photo/" + catId, {
+      headers: {
+        "x-api-key": "vzuh"
       }
-    );
-
-    fetchData(
-      "http://localhost:3000/cats" +
-        "/photo/" +
-        event.target.getAttribute("data-id"),
-      function(catsData) {
-        displayCatPhoto(sectionFoto, catsData);
-      },
-      "x-api-key",
-      "vzuh"
-    );
+    })
+      .then(data => displayCatPhoto(sectionFoto, data[0]))
+      .catch(() => displayCatPhoto(sectionFoto, undefined));
 
     setCurrentItem(event.target);
   });
@@ -181,15 +190,21 @@ function buildListCats(dataList, container) {
 
 const navigationMenu = document.querySelector(".nav");
 
-fetchData("http://localhost:3000/cats", function(catsData) {
-  buildListCats(catsData, navigationMenu);
-});
+fetchData(CATS_URL)
+  .then(data => buildListCats(data[0], navigationMenu))
+  .catch(() => buildListCats(undefined, navigationMenu));
 
 function replyToUser(answer, status) {
-  if (!answer) {
-    alert("Извините, в данных ответа ошибка");
+  if (!status) {
+    alert("Извините, здесь наши полномочия всё, окончены.");
     return;
   }
+
+  if (!answer) {
+    alert("Извините, ничего не разобрать, но есть код: " + status);
+    return;
+  }
+
   switch (status) {
     case 201:
       alert(answer.payload);
@@ -201,9 +216,16 @@ function replyToUser(answer, status) {
       alert(answer.message);
       break;
     default:
-      alert("Код ответа: " + status);
+      alert(
+        "Извините, другого ответа у нас для вас нет: " +
+          answer +
+          ". Код: " +
+          status
+      );
   }
 }
+
+const form = document.querySelector(".form");
 
 function sendNewCat(event) {
   event.preventDefault();
@@ -211,7 +233,7 @@ function sendNewCat(event) {
   const name = document.getElementById("name").value;
   const age = document.getElementById("age").value;
 
-  if (name === "" || age === "") {
+  if (!name || !age) {
     alert("В огороде пусто, выросла капуста!");
     return;
   }
@@ -225,31 +247,23 @@ function sendNewCat(event) {
     return;
   }
 
-  const xhr = new XMLHttpRequest();
   const body = JSON.stringify({
     name: name,
     age: age,
     gender: document.getElementById("gender").value
   });
 
-  xhr.open("POST", "http://localhost:3000/cats");
-  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-    let newCat = xhr.responseText;
-
-    try {
-      newCat = JSON.parse(newCat);
-      replyToUser(newCat, xhr.status);
-    } catch {
-      replyToUser(undefined);
-    }
-  };
-  xhr.send(body);
+  fetchData(CATS_URL, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json; charset=utf-8"
+    },
+    body: body
+  })
+    .then(data => replyToUser(...data))
+    .catch(status => replyToUser(undefined, status));
 }
-const form = document.querySelector(".form");
 
-form.addEventListener("submit", sendNewCat);
+form.addEventListener("submit", function(event) {
+  sendNewCat(event);
+});
