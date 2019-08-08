@@ -12,32 +12,35 @@
     />
   </head>
 
-  <body>
-    <main class="wrapper">
-      <form class="form">
-        <input type="text" id="name" placeholder="Имя" class="form__cat-name" />
-        <input
-          type="number"
-          id="age"
-          placeholder="Возраст"
-          class="form__cat-age"
-        />
-        <select name="select" id="gender" class="form__cat-gender">
-          <option value="female">Девочка</option>
-          <option value="male">Мальчик</option>
-        </select>
+  <body class="page">
+    <form class="page__head form-new-pet">
+      <input
+        type="text"
+        id="name"
+        placeholder="Имя"
+        class="form-new-pet__name"
+      />
+      <input
+        type="number"
+        id="age"
+        placeholder="Возраст"
+        class="form-new-pet__age"
+      />
+      <select name="select" id="gender" class="form-new-pet__gender">
+        <option value="female">Девочка</option>
+        <option value="male">Мальчик</option>
+      </select>
 
-        <button class="button-submit">Добавить</button>
-      </form>
-      <section class="central-block">
-        <nav class="nav"></nav>
-        <section class="content">
-          <figure class="userpic"></figure>
-          <aside class="more"></aside>
-          <aside class="comments"></aside>
-        </section>
+      <button class="form-new-pet__btn-submit">Добавить</button>
+    </form>
+    <div class="page__content central-block">
+      <div class="central-block__sidebar"></div>
+      <section class="central-block__content profile">
+        <figure class="profile__userpic"></figure>
+        <div class="profile__lineament"></div>
+        <div class="profile__comments comment-pet"></div>
       </section>
-    </main>
+    </div>
     <script src="main.js"></script>
   </body>
 </html>

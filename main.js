@@ -42,7 +42,7 @@ function makeDummyErr(container) {
   const dummy = document.createElement("p");
 
   dummy.textContent = "Извините, ошибка в данных";
-  dummy.className = "dummy--error";
+  dummy.className = "page__content_error";
   container.append(dummy);
 }
 
@@ -72,7 +72,7 @@ function displayCatInfo(container, info) {
 function makeDummyForComments(container) {
   const dummy = document.createElement("p");
   dummy.textContent = "Здесь еще нет ни одного комментария";
-  dummy.className = "dummy";
+  dummy.className = "comment-pet_error";
   container.appendChild(dummy);
 }
 
@@ -95,13 +95,13 @@ function displayComments(container, response) {
 
   response.payload.comments.forEach(comment => {
     const divCommment = document.createElement("div");
-    divCommment.className = "comment__item";
+    divCommment.className = "comment-pet__item";
     const autor = document.createElement("p");
-    autor.className = "comment__author";
+    autor.className = "comment-pet__author";
     autor.textContent = comment.author;
 
     const textComment = document.createElement("p");
-    textComment.className = "comment__text";
+    textComment.className = "comment-pet__text";
     textComment.textContent = comment.content;
     divCommment.appendChild(autor);
     divCommment.appendChild(textComment);
@@ -124,15 +124,15 @@ function setCurrentItem(clickedLink) {
   const navigationLinks = document.querySelectorAll(".nav__link");
 
   navigationLinks.forEach(link => {
-    link.classList.remove("actual");
+    link.classList.remove("nav__link_actual");
   });
 
-  clickedLink.classList.add("actual");
+  clickedLink.classList.add("nav__link_actual");
 }
 
-const more = document.querySelector(".more");
-const commentPlace = document.querySelector(".comments");
-const sectionFoto = document.querySelector(".userpic");
+const more = document.querySelector(".profile__lineament");
+const commentPlace = document.querySelector(".profile__comments");
+const sectionFoto = document.querySelector(".profile__userpic");
 
 function buildListCats(dataList, container) {
   container.textContent = "";
@@ -143,7 +143,8 @@ function buildListCats(dataList, container) {
   }
 
   const ulCats = document.createElement("ul");
-  ulCats.classList.add("nav__list");
+  ulCats.classList.add("central-block__list");
+  ulCats.classList.add("nav"); //central-block__list
 
   dataList.forEach(cat => {
     const liItem = document.createElement("li");
@@ -188,7 +189,7 @@ function buildListCats(dataList, container) {
   });
 }
 
-const navigationMenu = document.querySelector(".nav");
+const navigationMenu = document.querySelector(".central-block__sidebar");
 
 fetchData(CATS_URL)
   .then(data => buildListCats(data[0], navigationMenu))
@@ -225,7 +226,7 @@ function replyToUser(answer, status) {
   }
 }
 
-const form = document.querySelector(".form");
+const form = document.querySelector(".form-new-pet");
 
 function sendNewCat(event) {
   event.preventDefault();
