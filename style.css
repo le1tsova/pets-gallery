@@ -1,12 +1,9 @@
-body {
+.page {
   margin: 0;
-}
-
-.wrapper {
   height: 100%;
 }
 
-.button-submit {
+.form-new-pet__btn-submit {
   background-color: lightsteelblue;
   font-size: 24px;
   display: block;
@@ -15,7 +12,7 @@ body {
   border-radius: 5px;
 }
 
-.form {
+.form-new-pet {
   background-color: rgb(245, 204, 150);
   border: 2px solid black;
   padding: 30px;
@@ -35,22 +32,23 @@ body {
   color: dimgray;
 }
 
-.nav {
+.central-block__sidebar {
   border: 2px solid black;
   flex-basis: 30%;
   flex-grow: 2;
   background-color: rgb(245, 225, 200);
 }
 
-.content {
+.central-block__content {
   border: 2px solid black;
   flex-grow: 1;
   flex-basis: 45%;
   display: flex;
   flex-flow: column wrap;
+  align-content: space-evenly;
 }
 
-.userpic {
+.profile__userpic {
   width: 150px;
   height: 150px;
   overflow: hidden;
@@ -66,16 +64,16 @@ body {
   width: 120%;
 }
 
-.more {
+.profile__lineament {
   text-align: center;
 }
 
-.comments {
+.profile__comments {
   height: 100%;
   width: 40%;
 }
 
-.nav__list {
+.nav {
   list-style: none;
   margin: 0;
   text-decoration: none;
@@ -84,7 +82,7 @@ body {
   padding: 0;
 }
 
-.actual {
+.nav__link_actual {
   background-color: burlywood;
 }
 
@@ -100,8 +98,8 @@ body {
   background-color: rgb(197, 208, 223);
 }
 
-.form__cat-name,
-.form__cat-age {
+.form-new-pet__name,
+.form-new-pet__age {
   font-size: 24px;
   margin-left: 20px;
   margin-bottom: 20px;
@@ -110,7 +108,7 @@ body {
   border: none;
 }
 
-.form__cat-gender {
+.form-new-pet__gender {
   font-size: 24px;
   margin-left: 20px;
   width: 154px;
@@ -119,12 +117,12 @@ body {
   border: none;
 }
 
-.comment__item {
+.comment-pet__item {
   margin-left: 15px;
   background-color: #f8f8f8;
 }
 
-.comment__author {
+.comment-pet__author {
   padding-top: 5px;
   padding-left: 5px;
   font-weight: bold;
@@ -132,13 +130,13 @@ body {
   border-bottom: 2px solid #e5e6e6;
 }
 
-.comment__text {
+.comment-pet__text {
   padding-left: 15px;
   font-size: 14px;
   padding-bottom: 10px;
 }
 
-.dummy,
-.dummy--error {
+.page__content_error,
+.comment-pet_error {
   font-size: 16px;
 }
